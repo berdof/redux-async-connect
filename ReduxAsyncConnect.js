@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -154,17 +152,14 @@ var loadDataCounter = 0;
 var ReduxAsyncConnect = function (_React$Component) {
   _inherits(ReduxAsyncConnect, _React$Component);
 
-  _createClass(ReduxAsyncConnect, [{
-    key: 'isLoaded',
-    value: function isLoaded() {
-      return this.context.store.getState().reduxAsyncConnect.loaded;
-    }
-  }]);
+  ReduxAsyncConnect.prototype.isLoaded = function isLoaded() {
+    return this.context.store.getState().reduxAsyncConnect.loaded;
+  };
 
   function ReduxAsyncConnect(props, context) {
     _classCallCheck(this, ReduxAsyncConnect);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ReduxAsyncConnect).call(this, props, context));
+    var _this = _possibleConstructorReturn(this, _React$Component.call(this, props, context));
 
     _this.state = {
       propsToShow: _this.isLoaded() ? props : null
@@ -172,62 +167,55 @@ var ReduxAsyncConnect = function (_React$Component) {
     return _this;
   }
 
-  _createClass(ReduxAsyncConnect, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      var dataLoaded = this.isLoaded();
+  ReduxAsyncConnect.prototype.componentDidMount = function componentDidMount() {
+    var dataLoaded = this.isLoaded();
 
-      if (!dataLoaded) {
-        // we dont need it if we already made it on server-side
-        this.loadAsyncData(this.props);
-      }
+    if (!dataLoaded) {
+      // we dont need it if we already made it on server-side
+      this.loadAsyncData(this.props);
     }
-  }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      this.loadAsyncData(nextProps);
-    }
-  }, {
-    key: 'shouldComponentUpdate',
-    value: function shouldComponentUpdate(nextProps, nextState) {
-      return this.state.propsToShow !== nextState.propsToShow;
-    }
-  }, {
-    key: 'loadAsyncData',
-    value: function loadAsyncData(props) {
-      var _this2 = this;
+  };
 
-      var store = this.context.store;
-      var loadResult = loadAsyncConnect(_extends({}, props, { store: store }));
+  ReduxAsyncConnect.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+    this.loadAsyncData(nextProps);
+  };
 
-      loadDataCounter++;
+  ReduxAsyncConnect.prototype.shouldComponentUpdate = function shouldComponentUpdate(nextProps, nextState) {
+    return this.state.propsToShow !== nextState.propsToShow;
+  };
 
-      if (loadResult.async) {
-        this.props.beginGlobalLoad();
-        (function (loadDataCounterOriginal) {
-          loadResult.promise.then(function () {
-            // We need to change propsToShow only if loadAsyncData that called this promise
-            // is the last invocation of loadAsyncData method. Otherwise we can face situation
-            // when user is changing route several times and we finally show him route that has
-            // loaded props last time and not the last called route
-            if (loadDataCounter === loadDataCounterOriginal) {
-              _this2.setState({ propsToShow: props });
-            }
-            _this2.props.endGlobalLoad();
-          });
-        })(loadDataCounter);
-      } else {
-        this.setState({ propsToShow: props });
-      }
+  ReduxAsyncConnect.prototype.loadAsyncData = function loadAsyncData(props) {
+    var _this2 = this;
+
+    var store = this.context.store;
+    var loadResult = loadAsyncConnect(_extends({}, props, { store: store }));
+
+    loadDataCounter++;
+
+    if (loadResult.async) {
+      this.props.beginGlobalLoad();
+      (function (loadDataCounterOriginal) {
+        loadResult.promise.then(function () {
+          // We need to change propsToShow only if loadAsyncData that called this promise
+          // is the last invocation of loadAsyncData method. Otherwise we can face situation
+          // when user is changing route several times and we finally show him route that has
+          // loaded props last time and not the last called route
+          if (loadDataCounter === loadDataCounterOriginal) {
+            _this2.setState({ propsToShow: props });
+          }
+          _this2.props.endGlobalLoad();
+        });
+      })(loadDataCounter);
+    } else {
+      this.setState({ propsToShow: props });
     }
-  }, {
-    key: 'render',
-    value: function render() {
-      var propsToShow = this.state.propsToShow;
+  };
 
-      return propsToShow && this.props.render(propsToShow);
-    }
-  }]);
+  ReduxAsyncConnect.prototype.render = function render() {
+    var propsToShow = this.state.propsToShow;
+
+    return propsToShow && this.props.render(propsToShow);
+  };
 
   return ReduxAsyncConnect;
 }(_react2.default.Component);
